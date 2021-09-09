@@ -1,0 +1,10 @@
+homepage: "https://www.optimisemedia.com",
+documentation: "https://knowledge.optimisemedia.com/docs/advertiserimplementation#google-tag-manager",
+versions:
+
+  # Latest version
+  - sha: df37e7ca72774f27caebf2752e55f7a00c2825f0
+    changeNotes: Fix undefined bug
+  # Older versions
+  - sha: 5bd8e5b72d0a397f7dab594dabef8d048ebfdb81
+    changeNotes: Initial release
