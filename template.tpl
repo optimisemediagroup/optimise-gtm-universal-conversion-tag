@@ -112,25 +112,29 @@ var AppID;
 var Vcode;
 var OrderValue;
 
-//AppID
-if(typeof ecomm.purchase.actionField.id != 'undefined') {
-  AppID = ecomm.purchase.actionField.id;
-} else {
-  AppID = data.OrderReference;
-}
+if (ecomm && ecomm.purchase && ecomm.purchase.actionField) {
 
-//OrderValue
-if(typeof ecomm.purchase.actionField.revenue != 'undefined') {
-  OrderValue = ecomm.purchase.actionField.revenue;
-} else {
-  OrderValue = data.OrderValue;
-}
+  //AppID
+  if(typeof ecomm.purchase.actionField.id != 'undefined') {
+    AppID = ecomm.purchase.actionField.id;
+  } else {
+    AppID = data.OrderReference;
+  }
 
-//Vcode
-if(typeof ecomm.purchase.actionField.coupon != 'undefined') {
-  Vcode = ecomm.purchase.actionField.coupon;
-} else {
-  Vcode = data.Vcode;
+  //OrderValue
+  if(typeof ecomm.purchase.actionField.revenue != 'undefined') {
+    OrderValue = ecomm.purchase.actionField.revenue;
+  } else {
+    OrderValue = data.OrderValue;
+  }
+
+  //Vcode
+  if(typeof ecomm.purchase.actionField.coupon != 'undefined') {
+    Vcode = ecomm.purchase.actionField.coupon;
+  } else {
+    Vcode = data.Vcode;
+  }
+
 }
 
 // Declare base tracking URL
@@ -141,11 +145,15 @@ if(getCookieValues('optimiseevent',true).length > 0) {
   url = url + '&' + getCookieValues('optimiseevent',true);
 }
 
-// Add basket item data
-if (typeof ecomm.purchase != 'undefined'){
-	if (typeof ecomm.purchase.products != 'undefined'){
-		url = url + getBasketItems(ecomm.purchase.products);
-	}
+if (ecomm.purchase) {
+
+  // Add basket item data
+  if (typeof ecomm.purchase != 'undefined'){
+    if (typeof ecomm.purchase.products != 'undefined'){
+      url = url + getBasketItems(ecomm.purchase.products);
+    }
+  }
+
 }
 
 log('Transaction ID: ' + ecomm.purchase.actionField.id);
