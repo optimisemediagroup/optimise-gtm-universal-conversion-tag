@@ -113,21 +113,21 @@ var Vcode;
 var OrderValue;
 
 //AppID
-if(ecomm.purchase.actionField.id != 'undefined') {
+if(typeof ecomm.purchase.actionField.id != 'undefined') {
   AppID = ecomm.purchase.actionField.id;
 } else {
   AppID = data.OrderReference;
 }
 
 //OrderValue
-if(ecomm.purchase.actionField.revenue != 'undefined') {
+if(typeof ecomm.purchase.actionField.revenue != 'undefined') {
   OrderValue = ecomm.purchase.actionField.revenue;
 } else {
   OrderValue = data.OrderValue;
 }
 
 //Vcode
-if(ecomm.purchase.actionField.coupon != 'undefined') {
+if(typeof ecomm.purchase.actionField.coupon != 'undefined') {
   Vcode = ecomm.purchase.actionField.coupon;
 } else {
   Vcode = data.Vcode;
