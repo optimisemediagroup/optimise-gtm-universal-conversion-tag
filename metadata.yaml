@@ -3,9 +3,12 @@ documentation: "https://knowledge.optimisemedia.com/docs/advertiserimplementatio
 versions:
 
   # Latest version
+  - sha: 4f80182c3a0704c838ccbaf00650a188a47d900b
+    changeNotes: Further fix for ecomm data
+
+  # Previous releases
   - sha: 1f702dc9b507c0c5287ecbebeaba23d65761289a
     changeNotes: Fix undefined error in template
 
-  # Previous releases
   - sha: c1aacc5d23bdd39a14347f2be32bd71f614678b6
     changeNotes: Initial commit
