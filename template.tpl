@@ -104,55 +104,53 @@ const getCookieValues = require('getCookieValues');
 const ecomm = copyFromDataLayer('ecommerce');
 
 function getBasketItems(ecomProducts) {
-    var iid = '';
-    var iname = '';
-    var ival = '';
-    var ivol = '';
-    var ibrand = '';
-    var icategory = '';
+    var iid = [];
+    var iname = [];
+    var ival = [];
+    var ivol = [];
+    var ibrand = [];
+    var icategory = [];
 
     for (var i = 0; i < ecomProducts.length; i++) {
         for (var key in ecomProducts[i]) {
+            const val = ecomProducts[i][key];
+            log('EcomProducts Value: ' + key + "=" + val.toString());
+
+            const encodedVal = encodeUriComponent(val.toString());
             switch (key) {
                 // ival
                 case "price":
-                    log('value: ' + encodeUriComponent(ecomProducts[i][key].toString()));
-                    ival = ival + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
+                    ival.push(val != undefined ? encodeUriComponent(val.toString()) : '');
                     break;
                 // iid
                 case "id":
-                    log('iid: ' + encodeUriComponent(ecomProducts[i][key].toString()));
-                    iid = iid + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
+                    iid.push(val != undefined ? encodeUriComponent(val.toString()) : '');
                     break;
                 // iname
                 case "name":
-                    log('iname: ' + encodeUriComponent(ecomProducts[i][key].toString()));
-                    iname = iname + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
+                    iname.push(val != undefined ? encodeUriComponent(val.toString()) : '');
                     break;
                 // ivol
                 case "quantity":
-                    log('ivol: ' + encodeUriComponent(ecomProducts[i][key].toString()));
-                    ivol = ivol + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
+                    ivol.push(val != undefined ? encodeUriComponent(val.toString()) : '');
                     break;
                 // ibrand
                 case "brand":
-                    log('ibrand: ' + encodeUriComponent(ecomProducts[i][key].toString()));
-                    ibrand = ibrand + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
+                    ibrand.push(val != undefined ? encodeUriComponent(val.toString()) : '');
                     break;
                 // icategory
                 case "category":
-                    log('icategory: ' + encodeUriComponent(ecomProducts[i][key].toString()));
-                    icategory = icategory + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
+                    icategory.push(val != undefined ? encodeUriComponent(val.toString()) : '');
                     break;
-                // log anything else
                 default:
-                    log(key + ': ' + encodeUriComponent(ecomProducts[i][key].toString()));
                     break;
             }
+
         }
     }
 
-    var basketItems = '&iid=' + iid + '&iname=' + iname + '&ivol=' + ivol + '&ival=' + ival + '&icategory=' + icategory + '&ibrand=' + ibrand;
+
+    var basketItems = '&iid=' + iid.join('|') + '&iname=' + iname.join('|') + '&ivol=' + ivol.join('|') + '&ival=' + ival.join('|') + '&icategory=' + icategory.join('|') + '&ibrand=' + ibrand.join('|');
     return basketItems;
 }
 
@@ -161,33 +159,33 @@ const PID = data.PID || '';
 const CurrencyCode = data.CurrencyCode || '';
 
 //Set variables from either Fields or Enhanced Ecommerce dataLayer (if available)
-let AppID = data.OrderReference || '';
-let VCode = data.Vcode || '';
-let OrderValue = data.OrderValue || '';
+let AppID = data.OrderReference != undefined ? data.OrderReference : '';
+let VCode = data.Vcode != undefined ? data.Vcode : '';
+let OrderValue = data.OrderValue != undefined ? data.OrderValue : '';
 let CookieValues = '';
 let BasketValues = '';
 
 if (ecomm && ecomm.purchase) {
     if (ecomm.purchase.actionField) {
         //AppID
-        if (ecomm.purchase.actionField.id) {
+        if (ecomm.purchase.actionField.id != undefined) {
             AppID = ecomm.purchase.actionField.id;
         }
         //OrderValue
-        if (ecomm.purchase.actionField.revenue) {
+        if (ecomm.purchase.actionField.revenue != undefined) {
             OrderValue = ecomm.purchase.actionField.revenue;
         }
         //Vcode
-        if (ecomm.purchase.actionField.coupon) {
+        if (ecomm.purchase.actionField.coupon != undefined) {
             VCode = ecomm.purchase.actionField.coupon;
         }
     }
-    if (ecomm.purchase.products) {
+    if (ecomm.purchase.products != undefined) {
         // Add basket item data
         BasketValues = getBasketItems(ecomm.purchase.products);
     }
 }
-log(getCookieValues('optimiseevent', true));
+
 // Add cookie attributes
 if (getCookieValues('optimiseevent', true) && getCookieValues('optimiseevent', true).length > 0) {
     CookieValues = '&' + getCookieValues('optimiseevent', true);
@@ -195,12 +193,12 @@ if (getCookieValues('optimiseevent', true) && getCookieValues('optimiseevent', t
 
 // Declare base tracking URL
 var url = 'https://track.omguk.com/e/si/' +
-    '?MID=' + encodeUriComponent(MID) +
-    '&PID=' + encodeUriComponent(PID) +
-    '&AppID=' + encodeUriComponent(AppID) +
+    '?MID=' + encodeUriComponent(MID.toString()) +
+    '&PID=' + encodeUriComponent(PID.toString()) +
+    '&AppID=' + encodeUriComponent(AppID.toString()) +
     '&Status=' + OrderValue +
     '&Cur=' + CurrencyCode +
-    '&VCode=' + encodeUriComponent(VCode) +
+    '&VCode=' + encodeUriComponent(VCode.toString()) +
     BasketValues +
     CookieValues;
 
@@ -210,7 +208,6 @@ log('Voucher: ' + VCode);
 
 log(url);
 sendPixel(url, data.gtmOnSuccess, data.gtmOnFailure);
-
 
 
 ___WEB_PERMISSIONS___
@@ -268,6 +265,13 @@ ___WEB_PERMISSIONS___
       },
       "param": [
         {
+          "key": "allowedUrls",
+          "value": {
+            "type": 1,
+            "string": "specific"
+          }
+        },
+        {
           "key": "urls",
           "value": {
             "type": 2,
@@ -324,9 +328,49 @@ ___WEB_PERMISSIONS___
 
 ___TESTS___
 
-scenarios: []
+scenarios:
+- name: Simple Test
+  code: |-
+    const mockData = {
+      MID: "460",
+      PID: "849",
+      OrderReference: "12345",
+      CurrencyCode: "GBP",
+      Vcode: "vouchercode",
+      OrderValue: "333",
+    };
+    mock('getCookieValues', "sskey=1234&fpc=1");
+
+    mock('sendPixel', (url, onSuccess, onFailure) => {
+      onSuccess();
+    });
+
+    // Call runCode to run the template's code.
+    runCode(mockData);
+
+    // Verify that the tag finished successfully.
+    assertApi('gtmOnSuccess').wasCalled();
+- name: Data Layer Test
+  code: " mock('copyFromDataLayer', key => {\n   if (key === 'ecommerce') {\n    \
+    \ return {\n       purchase: {\n         actionField: {\n           id: 111,\n\
+    \           revenue: 222,\n           coupon: \"coupon\",\n         },\n     \
+    \    products: [\n           {\n             price: 333,\n             id: 0,\n\
+    \             name: \"product1\",\n             quantity: 20,\n             brand:\
+    \ \"thebrand\",\n             category: \"thecategory\",\n             otherKey:\
+    \ \"someotherkey\",\n           },\n            {\n             price: 444,\n\
+    \             id: 1,\n             name: \"product2\",\n             quantity:\
+    \ 30,\n             brand: \"thebrand2\",\n             category: \"thecategory2\"\
+    ,\n             otherKey: \"someotherkey2\",\n           },\n         ]\n    \
+    \   },\n       \n     };\n   }\n });\n\nconst mockData = {\n  MID: \"460\",\n\
+    \  PID: \"849\",\n  OrderReference: \"12345\",\n  CurrencyCode: \"GBP\",\n  Vcode:\
+    \ \"vouchercode\",\n  OrderValue: \"333\",\n};\nmock('getCookieValues', \"sskey=1234&fpc=1\"\
+    );\n\nmock('sendPixel', (url, onSuccess, onFailure) => {\n  onSuccess();\n});\n\
+    \n// Call runCode to run the template's code.\nrunCode(mockData);\n\n// Verify\
+    \ that the tag finished successfully.\nassertApi('gtmOnSuccess').wasCalled();"
 
 
 ___NOTES___
 
 Created on 15/07/2020, 14:44:23
+
+
