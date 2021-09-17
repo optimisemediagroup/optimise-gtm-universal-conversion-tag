@@ -101,122 +101,116 @@ const log = require('logToConsole');
 const copyFromDataLayer = require('copyFromDataLayer');
 const sendPixel = require('sendPixel');
 const getCookieValues = require('getCookieValues');
-
-const MID = data.MID;
-const PID = data.PID;
 const ecomm = copyFromDataLayer('ecommerce');
-//log(ecomm);
+
+function getBasketItems(ecomProducts) {
+    var iid = '';
+    var iname = '';
+    var ival = '';
+    var ivol = '';
+    var ibrand = '';
+    var icategory = '';
+
+    for (var i = 0; i < ecomProducts.length; i++) {
+        for (var key in ecomProducts[i]) {
+            switch (key) {
+                // ival
+                case "price":
+                    log('value: ' + encodeUriComponent(ecomProducts[i][key].toString()));
+                    ival = ival + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
+                    break;
+                // iid
+                case "id":
+                    log('iid: ' + encodeUriComponent(ecomProducts[i][key].toString()));
+                    iid = iid + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
+                    break;
+                // iname
+                case "name":
+                    log('iname: ' + encodeUriComponent(ecomProducts[i][key].toString()));
+                    iname = iname + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
+                    break;
+                // ivol
+                case "quantity":
+                    log('ivol: ' + encodeUriComponent(ecomProducts[i][key].toString()));
+                    ivol = ivol + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
+                    break;
+                // ibrand
+                case "brand":
+                    log('ibrand: ' + encodeUriComponent(ecomProducts[i][key].toString()));
+                    ibrand = ibrand + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
+                    break;
+                // icategory
+                case "category":
+                    log('icategory: ' + encodeUriComponent(ecomProducts[i][key].toString()));
+                    icategory = icategory + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
+                    break;
+                // log anything else
+                default:
+                    log(key + ': ' + encodeUriComponent(ecomProducts[i][key].toString()));
+                    break;
+            }
+        }
+    }
+
+    var basketItems = '&iid=' + iid + '&iname=' + iname + '&ivol=' + ivol + '&ival=' + ival + '&icategory=' + icategory + '&ibrand=' + ibrand;
+    return basketItems;
+}
+
+const MID = data.MID || '';
+const PID = data.PID || '';
+const CurrencyCode = data.CurrencyCode || '';
 
 //Set variables from either Fields or Enhanced Ecommerce dataLayer (if available)
-var AppID;
-var Vcode;
-var OrderValue;
+let AppID = data.OrderReference || '';
+let VCode = data.Vcode || '';
+let OrderValue = data.OrderValue || '';
+let CookieValues = '';
+let BasketValues = '';
 
-if (ecomm && ecomm.purchase && ecomm.purchase.actionField) {
-
-  //AppID
-  if(typeof ecomm.purchase.actionField.id != 'undefined') {
-    AppID = ecomm.purchase.actionField.id;
-  } else {
-    AppID = data.OrderReference;
-  }
-
-  //OrderValue
-  if(typeof ecomm.purchase.actionField.revenue != 'undefined') {
-    OrderValue = ecomm.purchase.actionField.revenue;
-  } else {
-    OrderValue = data.OrderValue;
-  }
-
-  //Vcode
-  if(typeof ecomm.purchase.actionField.coupon != 'undefined') {
-    Vcode = ecomm.purchase.actionField.coupon;
-  } else {
-    Vcode = data.Vcode;
-  }
-
+if (ecomm && ecomm.purchase) {
+    if (ecomm.purchase.actionField) {
+        //AppID
+        if (ecomm.purchase.actionField.id) {
+            AppID = ecomm.purchase.actionField.id;
+        }
+        //OrderValue
+        if (ecomm.purchase.actionField.revenue) {
+            OrderValue = ecomm.purchase.actionField.revenue;
+        }
+        //Vcode
+        if (ecomm.purchase.actionField.coupon) {
+            VCode = ecomm.purchase.actionField.coupon;
+        }
+    }
+    if (ecomm.purchase.products) {
+        // Add basket item data
+        BasketValues = getBasketItems(ecomm.purchase.products);
+    }
+}
+log(getCookieValues('optimiseevent', true));
+// Add cookie attributes
+if (getCookieValues('optimiseevent', true) && getCookieValues('optimiseevent', true).length > 0) {
+    CookieValues = '&' + getCookieValues('optimiseevent', true);
 }
 
 // Declare base tracking URL
-var url = 'https://track.omguk.com/e/si/?MID=' + encodeUriComponent(MID) + '&PID=' + encodeUriComponent(PID) + '&AppID=' + encodeUriComponent(AppID) + '&Status=' + OrderValue + '&Cur=' + data.CurrencyCode + '&VCode=' + encodeUriComponent(Vcode);
+var url = 'https://track.omguk.com/e/si/' +
+    '?MID=' + encodeUriComponent(MID) +
+    '&PID=' + encodeUriComponent(PID) +
+    '&AppID=' + encodeUriComponent(AppID) +
+    '&Status=' + OrderValue +
+    '&Cur=' + CurrencyCode +
+    '&VCode=' + encodeUriComponent(VCode) +
+    BasketValues +
+    CookieValues;
 
-// Add cookie attributes
-if(getCookieValues('optimiseevent',true).length > 0) {
-  url = url + '&' + getCookieValues('optimiseevent',true);
-}
-
-if (ecomm.purchase) {
-
-  // Add basket item data
-  if (typeof ecomm.purchase != 'undefined'){
-    if (typeof ecomm.purchase.products != 'undefined'){
-      url = url + getBasketItems(ecomm.purchase.products);
-    }
-  }
-
-}
-
-log('Transaction ID: ' + ecomm.purchase.actionField.id);
-log('Order Value: ' + ecomm.purchase.actionField.revenue);
-log('Voucher: ' + ecomm.purchase.actionField.coupon);
+log('Transaction ID: ' + AppID);
+log('Order Value: ' + OrderValue);
+log('Voucher: ' + VCode);
 
 log(url);
 sendPixel(url, data.gtmOnSuccess, data.gtmOnFailure);
 
-
-function getBasketItems(ecomProducts){
-	var iid = '';
-	var iname = '';
-	var ival = '';
-	var ivol = '';
-	var ibrand = '';
-	var icategory = '';
-
-	for (var i = 0; i < ecomProducts.length; i++){
-		for (var key in ecomProducts[i]){
-			switch (key){
-				// ival
-				case "price":
-					log('value: ' + encodeUriComponent(ecomProducts[i][key].toString()));
-					ival = ival + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
-				break;
-				// iid
-				case "id":
-					log('iid: ' + encodeUriComponent(ecomProducts[i][key].toString()));
-					iid = iid + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
-				break;				
-				// iname
-				case "name":
-					log('iname: ' + encodeUriComponent(ecomProducts[i][key].toString()));
-					iname = iname + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
-				break;
-				// ivol
-				case "quantity":
-					log('ivol: ' + encodeUriComponent(ecomProducts[i][key].toString()));
-					ivol = ivol + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
-				break;
-				// ibrand
-				case "brand":
-					log('ibrand: ' + encodeUriComponent(ecomProducts[i][key].toString()));
-					ibrand = ibrand + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
-				break;				
-				// icategory
-				case "category":
-					log('icategory: ' + encodeUriComponent(ecomProducts[i][key].toString()));
-					icategory = icategory + encodeUriComponent(ecomProducts[i][key].toString()) + '|';
-				break;
-				// log anything else
-				default:
-					log(key + ': ' + encodeUriComponent(ecomProducts[i][key].toString()));
-				break;
-			}
-		}
-	}
-  
-  var basketItems = '&iid=' + iid + '&iname=' + iname + '&ivol=' + ivol + '&ival=' + ival + '&icategory=' + icategory + '&ibrand=' + ibrand;
-
-	return basketItems;
-}
 
 
 ___WEB_PERMISSIONS___
