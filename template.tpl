@@ -265,13 +265,6 @@ ___WEB_PERMISSIONS___
       },
       "param": [
         {
-          "key": "allowedUrls",
-          "value": {
-            "type": 1,
-            "string": "specific"
-          }
-        },
-        {
           "key": "urls",
           "value": {
             "type": 2,
