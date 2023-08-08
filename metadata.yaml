@@ -3,7 +3,7 @@ documentation: "https://knowledge.optimisemedia.com/docs/advertiserimplementatio
 versions:
 
   # Latest version
-  - sha: f3b0a134b6c68c9468ae5616e48240f21055c793
+  - sha: 8ab221a69d3785bc6a0569f891ac56bca8ff6525
     changeNotes: Add undefined checks for ecomm data
 
   # Previous releases
