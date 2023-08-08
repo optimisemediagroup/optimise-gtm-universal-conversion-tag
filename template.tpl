@@ -115,8 +115,6 @@ function getBasketItems(ecomProducts) {
         for (var key in ecomProducts[i]) {
             const val = ecomProducts[i][key];
             log('EcomProducts Value: ' + key + "=" + val.toString());
-
-            const encodedVal = encodeUriComponent(val.toString());
             switch (key) {
                 // ival
                 case "price":
