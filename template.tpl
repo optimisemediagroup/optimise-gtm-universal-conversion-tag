@@ -155,6 +155,8 @@ function getBasketItems(ecomProducts) {
 const MID = data.MID || '';
 const PID = data.PID || '';
 const CurrencyCode = data.CurrencyCode || '';
+const cookieName = 'OMG-' + MID;
+const omgCookieValue = getCookieValues(cookieName, true);
 
 //Set variables from either Fields or Enhanced Ecommerce dataLayer (if available)
 let AppID = data.OrderReference != undefined ? data.OrderReference : '';
@@ -185,8 +187,8 @@ if (ecomm && ecomm.purchase) {
 }
 
 // Add cookie attributes
-if (getCookieValues('optimiseevent', true) && getCookieValues('optimiseevent', true).length > 0) {
-    CookieValues = '&' + getCookieValues('optimiseevent', true);
+if (omgCookieValue && omgCookieValue.length > 0) {
+    CookieValues = '&' + omgCookieValue;
 }
 
 // Declare base tracking URL
@@ -292,19 +294,7 @@ ___WEB_PERMISSIONS___
           "key": "cookieAccess",
           "value": {
             "type": 1,
-            "string": "specific"
-          }
-        },
-        {
-          "key": "cookieNames",
-          "value": {
-            "type": 2,
-            "listItem": [
-              {
-                "type": 1,
-                "string": "optimiseevent"
-              }
-            ]
+            "string": "any"
           }
         }
       ]
@@ -363,5 +353,3 @@ scenarios:
 ___NOTES___
 
 Created on 15/07/2020, 14:44:23
-
-
