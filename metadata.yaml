@@ -3,7 +3,7 @@ documentation: "https://knowledge.optimisemedia.com/docs/advertiserimplementatio
 versions:
 
   # Latest version
-  - sha: 228457bfe1b43e8557a193702ef031498ffcc6ea
+  - sha: 228457b781ce5351c752124358994aa849b83b44
     changeNotes: Read dynamic OMG cookie values
   - sha: 8ab221a69d3785bc6a0569f891ac56bca8ff6525
     changeNotes: Add undefined checks for ecomm data
